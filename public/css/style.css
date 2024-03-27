@@ -1,5 +1,5 @@
 body {
-  background-image: linear-gradient(to bottom, #f1f1f1, lightblue);
+  background: linear-gradient(to left, rgb(22, 123, 131), rgb(30, 61, 80));
 }
 
 form {

@@ -2,49 +2,67 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs").promises;
 
-const filePath = require("../database.json");
+const filePath = "./database.json"; //Link to our mock database
 
 //Middlewares
-
-router.use(express.json());
-router.use(express.urlencoded({ extended: true }));
+router.use(express.json()); // parse JSON
+router.use(express.urlencoded({ extended: true })); //handle form data
 router.use(async (req, res, next) => {
   try {
     const data = await readData();
-    /*we create a userData variable with the database.json stored in it.
-    The res.locals.userData makes it available anywhere in the view.
-    */
-
-    //res.locals.userData = JSON.stringify(data);
-    next();
+    res.locals.userData = JSON.stringify(data);
   } catch (error) {
-    res.send("Internal Server Error:", error);
+    res.status(500).send("Internal Server Error", error);
   }
+  next();
 });
 
-//High-level function for reading the data
-
+//high-level function to show database data
 async function readData() {
   try {
     const data = await fs.readFile(filePath, "utf-8");
     return JSON.parse(data);
   } catch (error) {
-    res.status(500).send("Internal Server Error:", error);
-    //res.send(error);
+    res.status(500).send("Internal Server Error", error);
   }
 }
 
-//High-level function for writing to the data
-
+//high-level function to write to the database file
 async function writeData(data) {
   try {
-    //JSON stringify is used for formating the JSON data
-    const data = await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
   } catch (error) {
-    res.status(500).send("Internal Server Error:", error);
+    res.status(500).send("Internal Server Error", error);
   }
 }
 
+//Create a new user
+router.post("/users", async (req, res) => {
+  try {
+    const data = await readData();
+    const lastUser = data.users[data.users.length - 1];
+    const lastUserInt = parseInt(lastUser.id);
+    const nextId = lastUser ? lastUserInt + 1 : 1;
+
+    const { username, first_name, email } = req.body;
+    const newUser = {
+      id: nextId,
+      username: username,
+      first_name: first_name,
+      email: email,
+    };
+
+    data.users.push(newUser);
+
+    await writeData(data);
+
+    res.send("User added successfully");
+  } catch (error) {
+    res.status(500).send("Internal Server Error", error);
+  }
+});
+
+//Home page route with user data
 router.get("/", (req, res) => {
   const data = res.locals.userData;
   res.render("home", { data });
