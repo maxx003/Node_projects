@@ -89,10 +89,38 @@ router.post("/users/:id/update", async (req, res) => {
   }
 });
 
+router.get("/api/v1/users", async (req, res) => {
+  try {
+    const data = await readData();
+    res.send(data);
+  } catch (error) {
+    res.status(500).send("Internal Server Error", error);
+  }
+});
 //Home page route with user data
 router.get("/", (req, res) => {
   const data = res.locals.userData;
   res.render("home", { data });
+});
+
+router.post("/users/:id/delete", async (req, res) => {
+  try {
+    const data = await readData();
+    const index = data.users.findIndex(
+      (user) => user.id == parseInt(req.params.id)
+    );
+
+    if (index != -1) {
+      data.users.splice(index, 1);
+      await writeData(data);
+
+      res.status(200).send("User successfully deleted");
+    } else {
+      res.send("User is not Found!");
+    }
+  } catch (error) {
+    res.status(500).send("Internal Server Error", error);
+  }
 });
 
 module.exports = router;

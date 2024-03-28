@@ -10,7 +10,7 @@
 
       <%= data %>
 
-       <! --Add User Form-->
+       <!--Add User Form-->
        <h4> User Form</h4>
        <form id="addUserForm" method="POST" action="/users">
         <label for="username">Username:</label>
@@ -26,7 +26,7 @@
        </form>
     
 
-       <! --Add User Form-->
+       <!--Add Edit Form-->
        <h4> Edit Form</h4>
        <form id="editUserForm" method="POST" action="/users/:id/update">
 
@@ -42,12 +42,30 @@
         <label for="new_email">New Email</label>
         <input type="email" id="new_email" name="new_email" required/>
 
-        <button type="submit" onclick="updateUser()"> Edit User</button>
        </form>
 
+
+
+       <!--Delete Form-->
+
+       <h4> Delete Form</h4>
+       <form id="deleteUserForm" method="POST" action="/users/:id/delete">
+       
+
+        
+        <input type="number" id="delete_id" placeholder="User ID" required/>
+                <button type="submit" onclick="deleteUser()"> Delete User</button>
+
+       </form>
         </center>
 
         <script>
+            function deleteUser(){
+                var deleteForm = document.getElementById("deleteUserForm");
+                var id = document.getElementById("delete_id").value;
+               deleteForm.action = "/users/" + id +"/delete";
+                deleteForm.submit();
+            }
             function updateUser(){
                 var editForm = document.getElementById("editUserForm");
                 var id = document.getElementById("edit_id").value;
